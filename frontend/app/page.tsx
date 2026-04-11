@@ -1,13 +1,27 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState, useCallback, useEffect, useRef } from "react";
 import FileDropZone from "@/components/FileDropZone";
 import StatusBar from "@/components/StatusBar";
-import KnowledgeGraph from "@/components/KnowledgeGraph";
-import NodeDetail from "@/components/NodeDetail";
 import GraphSearch from "@/components/GraphSearch";
 import { SSEClient } from "@/lib/sse-client";
 import * as api from "@/lib/api-client";
+
+// 动态导入 KnowledgeGraph（依赖 force-graph，不支持 SSR）
+const KnowledgeGraph = dynamic(() => import("@/components/KnowledgeGraph"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-full text-text-muted">
+      <span className="text-sm">加载知识图谱组件...</span>
+    </div>
+  ),
+});
+
+// 动态导入 NodeDetail
+const NodeDetail = dynamic(() => import("@/components/NodeDetail"), {
+  ssr: false,
+});
 
 interface GraphNode {
   id: string;
@@ -44,6 +58,23 @@ export default function Home() {
   const [queryLoading, setQueryLoading] = useState(false);
   const [lintReport, setLintReport] = useState<string | null>(null);
   const [lintLoading, setLintLoading] = useState(false);
+
+  // 设置面板状态
+  const [showSettings, setShowSettings] = useState(false);
+  const [storagePath, setStoragePath] = useState<string>("");
+  const [rawDir, setRawDir] = useState<string>("");
+  const [wikiDir, setWikiDir] = useState<string>("");
+
+  // 加载当前配置
+  useEffect(() => {
+    api.getSettings().then((settings) => {
+      setStoragePath(settings.storage_path);
+      setRawDir(settings.raw_dir);
+      setWikiDir(settings.wiki_dir);
+    }).catch(() => {
+      // 配置暂未加载，忽略
+    });
+  }, []);
 
   // SSE 客户端引用
   const sseRef = useRef<SSEClient | null>(null);
@@ -171,13 +202,42 @@ export default function Home() {
     [graphData.nodes, handleNodeClick],
   );
 
+  // 保存设置
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const settings = await api.updateSettings({ storage_path: storagePath });
+      setStoragePath(settings.storage_path);
+      setRawDir(settings.raw_dir);
+      setWikiDir(settings.wiki_dir);
+      setShowSettings(false);
+    } catch {
+      alert("保存设置失败，请检查路径是否有效");
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-bg-dark text-text">
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-3 border-b border-border bg-panel-bg">
         <h1 className="text-lg font-semibold tracking-wide">LLM Wiki Compiler</h1>
-        <div className="flex gap-3 text-sm text-text-muted">
+        <div className="flex items-center gap-4 text-sm text-text-muted">
+          {storagePath && (
+            <span className="text-xs font-mono text-text-muted/70" title={storagePath}>
+              存储: {storagePath}
+            </span>
+          )}
           <span>v0.1.0</span>
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className="p-1.5 rounded hover:bg-bg-dark transition-colors"
+            title="设置"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
         </div>
       </header>
 
@@ -320,6 +380,69 @@ export default function Home() {
         loading={nodeLoading}
         onClose={() => setSelectedNode(null)}
       />
+
+      {/* 设置面板 */}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowSettings(false)}
+          />
+          <div className="relative bg-panel-bg border border-border rounded-xl shadow-2xl w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">设置</h2>
+              <button
+                onClick={() => setShowSettings(false)}
+                className="p-1 rounded text-text-muted hover:text-white hover:bg-bg-dark transition"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSettings} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-text-muted mb-1">
+                  知识库存储路径
+                </label>
+                <input
+                  type="text"
+                  value={storagePath}
+                  onChange={(e) => setStoragePath(e.target.value)}
+                  placeholder="留空使用默认路径"
+                  className="w-full bg-bg-dark border border-border rounded px-3 py-2 text-sm text-text placeholder-text-muted focus:outline-none focus:border-primary font-mono"
+                />
+                <p className="text-xs text-text-muted mt-1">
+                  修改后需重启后端。当前：
+                </p>
+                {rawDir && (
+                  <p className="text-xs text-text-muted font-mono">原始文件: {rawDir}</p>
+                )}
+                {wikiDir && (
+                  <p className="text-xs text-text-muted font-mono">知识库: {wikiDir}</p>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSettings(false)}
+                  className="px-4 py-2 text-sm rounded bg-bg-dark text-text-muted hover:text-text transition"
+                >
+                  取消
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm rounded bg-primary text-white hover:bg-primary-hover transition"
+                >
+                  保存
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

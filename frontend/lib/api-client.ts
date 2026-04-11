@@ -80,3 +80,36 @@ export async function getFileContent(filePath: string) {
   );
   return res.json();
 }
+
+/**
+ * 获取当前配置（存储路径等）
+ */
+export async function getSettings(): Promise<{
+  storage_path: string;
+  raw_dir: string;
+  wiki_dir: string;
+  claude_code_git_bash_path: string;
+}> {
+  const res = await fetch(`${API_BASE}/api/settings`);
+  return res.json();
+}
+
+/**
+ * 更新配置（修改存储路径等）
+ */
+export async function updateSettings(params: {
+  storage_path?: string;
+  claude_code_git_bash_path?: string;
+}): Promise<{
+  storage_path: string;
+  raw_dir: string;
+  wiki_dir: string;
+  claude_code_git_bash_path: string;
+}> {
+  const res = await fetch(`${API_BASE}/api/settings`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  });
+  return res.json();
+}

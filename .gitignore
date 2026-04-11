@@ -9,19 +9,23 @@
 
 # === BMad output ===
 _bmad-output/
-
-# === Skills (BMad generated, not source) ===
 skills/
+.claude/skills/
 
 # === Node.js / Frontend ===
+node_modules/
 frontend/node_modules/
 frontend/.next/
 frontend/out/
 frontend/.env
 frontend/.env.local
 frontend/.env.*.local
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
 # === Python / Backend ===
+__pycache__/
 backend/__pycache__/
 backend/**/*.pyc
 backend/.venv/
@@ -29,8 +33,9 @@ backend/venv/
 backend/env/
 backend/.env
 backend/.env.local
-backend/.python-version
+.python-version
 *.egg-info/
+.pytest_cache/
 dist/
 build/
 
@@ -41,11 +46,16 @@ Thumbs.db
 *.tmp
 *.bak
 
-# === Raw input (user's private data, not committed) ===
+# === Runtime data (generated at runtime, not committed) ===
+data/
 raw/
-
-# === Wiki (generated content, optional to commit) ===
 wiki/
 
 # === Claude Code internal ===
 .claude/tmp/
+
+# === Test Results ===
+test-results/
+test-results-browser/
+playwright-report/
+blob-report/

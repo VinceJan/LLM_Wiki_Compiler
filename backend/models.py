@@ -64,3 +64,19 @@ class FileContentResponse(BaseModel):
 
     path: str
     content: str
+
+
+class SettingsResponse(BaseModel):
+    """配置响应体。"""
+
+    storage_path: str
+    raw_dir: str
+    wiki_dir: str
+    claude_code_git_bash_path: str
+
+
+class SettingsUpdate(BaseModel):
+    """配置更新请求体。"""
+
+    storage_path: str = None
+    claude_code_git_bash_path: str = None

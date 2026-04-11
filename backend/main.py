@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from wiki_engine import WikiEngine
-from routes import ingest, query, lint, files, graph
+from routes import ingest, query, lint, files, graph, settings
 
 
 @asynccontextmanager
@@ -42,6 +42,7 @@ app.include_router(query.router)
 app.include_router(lint.router)
 app.include_router(files.router)
 app.include_router(graph.router)
+app.include_router(settings.router)
 
 
 @app.get("/api/health")

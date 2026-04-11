@@ -11,15 +11,25 @@ from typing import AsyncGenerator
 from content_extractor import ContentExtractor
 
 # Windows 环境下 Claude Code CLI 需要的 git-bash 路径
+from config_manager import load_config
+
+_config = load_config()
+_engine_config = _config.get("engine", {})
+
 CLAUDE_CODE_GIT_BASH_PATH = os.environ.get(
     "CLAUDE_CODE_GIT_BASH_PATH",
-    r"E:\Develop_tools\Git\bin\bash.exe"
+    _engine_config.get("claude_code_git_bash_path", r"E:\Develop_tools\Git\bin\bash.exe")
 )
 
-# 项目根目录，默认为脚本所在目录的上级
+# 项目根目录
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_WIKI_ROOT = PROJECT_ROOT / "wiki"
-DEFAULT_RAW_DIR = PROJECT_ROOT / "raw"
+
+# 默认存储路径（使用配置管理器解析）
+from config_manager import resolve_storage_path
+
+DEFAULT_STORAGE_ROOT = resolve_storage_path()
+DEFAULT_WIKI_ROOT = DEFAULT_STORAGE_ROOT / "wiki"
+DEFAULT_RAW_DIR = DEFAULT_STORAGE_ROOT / "raw"
 
 
 class WikiEngine:

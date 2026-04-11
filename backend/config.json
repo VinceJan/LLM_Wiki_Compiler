@@ -1,0 +1,9 @@
+{
+  "_comment": "LLM Wiki Compiler 配置文件。修改 storage_path 可自定义知识库存储位置。",
+  "storage_path": "E:\\tmp\\Trae_Hackathon_CC\\data",
+  "_storage_path_help": "知识库的存储根目录。留空则使用项目根目录下的 data/ 目录。修改后重启后端生效。",
+  "engine": {
+    "claude_code_git_bash_path": "E:\\Develop_tools\\Git\\bin\\bash.exe",
+    "_git_bash_help": "Windows 下 Claude Code CLI 需要的 git-bash 路径。如已设置环境变量可不填。"
+  }
+}
