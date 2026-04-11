@@ -1,0 +1,51 @@
+# === IDE / Editor ===
+.trae/
+.agents/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# === BMad output ===
+_bmad-output/
+
+# === Skills (BMad generated, not source) ===
+skills/
+
+# === Node.js / Frontend ===
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# === Python / Backend ===
+backend/__pycache__/
+backend/**/*.pyc
+backend/.venv/
+backend/venv/
+backend/env/
+backend/.env
+backend/.env.local
+backend/.python-version
+*.egg-info/
+dist/
+build/
+
+# === OS / Misc ===
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+
+# === Raw input (user's private data, not committed) ===
+raw/
+
+# === Wiki (generated content, optional to commit) ===
+wiki/
+
+# === Claude Code internal ===
+.claude/tmp/
