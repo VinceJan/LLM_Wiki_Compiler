@@ -65,6 +65,9 @@ export class SSEClient {
 
     // 连接错误处理
     this.eventSource.onerror = () => {
+      if (this.eventSource?.readyState === EventSource.CLOSED) {
+        return; // 已主动关闭，忽略
+      }
       this.onError("SSE 连接断开");
       this.disconnect();
     };

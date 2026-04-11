@@ -195,33 +195,67 @@ source: 原始来源URL或文件
             )
 
             files_changed = []
+            errors: list[str] = []
+            event_queue: asyncio.Queue = asyncio.Queue()
 
-            # 实时读取 stdout
-            async for line in process.stdout:
+            async def read_stdout():
+                """并发读取 stdout，将事件推入队列。"""
+                async for line in process.stdout:
+                    try:
+                        text = line.decode("utf-8", errors="replace").strip()
+                        if text:
+                            try:
+                                data = json.loads(text)
+                                if isinstance(data, dict):
+                                    msg = data.get("message", data.get("type", text))
+                                    await event_queue.put(
+                                        {"event": "progress", "data": {"message": str(msg)}}
+                                    )
+                            except json.JSONDecodeError:
+                                await event_queue.put(
+                                    {"event": "progress", "data": {"message": text}}
+                                )
+                    except Exception:
+                        pass
+
+            async def read_stderr():
+                """并发读取 stderr，收集错误信息。"""
+                async for line in process.stderr:
+                    try:
+                        text = line.decode("utf-8", errors="replace").strip()
+                        if text:
+                            errors.append(text)
+                    except Exception:
+                        pass
+
+            # 启动并发读取任务，避免 stdout/stderr 缓冲区满导致子进程阻塞
+            stdout_task = asyncio.create_task(read_stdout())
+            stderr_task = asyncio.create_task(read_stderr())
+
+            # 从队列消费事件（实时转发 SSE），直到两个读取任务都完成
+            while True:
+                # 检查是否所有任务都已完成且队列为空
+                if (stdout_task.done() and stderr_task.done()
+                        and event_queue.empty()):
+                    break
                 try:
-                    text = line.decode("utf-8", errors="replace").strip()
-                    if text:
-                        # 尝试解析 JSON（--print 模式可能输出 JSON）
-                        try:
-                            data = json.loads(text)
-                            if isinstance(data, dict):
-                                # 转发 Claude Code 的流式消息
-                                msg = data.get("message", data.get("type", text))
-                                yield {"event": "progress", "data": {"message": str(msg)}}
-                        except json.JSONDecodeError:
-                            # 非 JSON 文本，作为进度消息
-                            yield {"event": "progress", "data": {"message": text}}
-                except Exception:
-                    pass
+                    event = await asyncio.wait_for(event_queue.get(), timeout=0.1)
+                    yield event
+                except asyncio.TimeoutError:
+                    continue
+
+            # 确保任务异常被捕获
+            for task in (stdout_task, stderr_task):
+                if not task.done():
+                    task.cancel()
+                else:
+                    task.exception()  # 检查是否有未处理的异常（静默忽略）
 
             # 等待进程结束
             return_code = await process.wait()
 
-            if return_code != 0:
-                stderr_output = ""
-                async for line in process.stderr:
-                    stderr_output += line.decode("utf-8", errors="replace")
-                yield {"event": "error", "data": {"error": f"Claude Code 退出码 {return_code}: {stderr_output}"}}
+            if return_code != 0 and errors:
+                yield {"event": "error", "data": {"error": f"Claude Code 退出码 {return_code}: {''.join(errors)}"}}
                 return
 
             # 扫描 wiki 目录获取变更的文件

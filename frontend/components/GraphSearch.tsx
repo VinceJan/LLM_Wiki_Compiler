@@ -41,11 +41,11 @@ export default function GraphSearch({ nodes, onNodeSelect }: GraphSearchProps) {
       {/* 搜索输入框 */}
       <div className="relative">
         <svg
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-dim"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
-          strokeWidth={2}
+          strokeWidth={1.5}
         >
           <path
             strokeLinecap="round"
@@ -62,21 +62,21 @@ export default function GraphSearch({ nodes, onNodeSelect }: GraphSearchProps) {
           }}
           onFocus={() => filtered.length > 0 && setIsOpen(true)}
           placeholder="搜索节点..."
-          className="w-full pl-9 pr-3 py-2 text-sm rounded-lg bg-slate-800 border border-slate-700/50 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+          className="w-full pl-9 pr-3 py-1.5 text-sm rounded-md bg-bg border border-border text-text placeholder-text-dim focus:outline-none focus:border-primary transition-colors"
         />
       </div>
 
       {/* 下拉搜索结果 */}
       {isOpen && filtered.length > 0 && (
-        <div className="absolute z-40 mt-1 w-full bg-slate-800 border border-slate-700/50 rounded-lg shadow-xl overflow-hidden max-h-60 overflow-y-auto">
+        <div className="absolute z-40 mt-1 w-full bg-elevated border border-border rounded-md shadow-xl overflow-hidden max-h-60 overflow-y-auto">
           {filtered.map(node => (
             <button
               key={node.id}
               onClick={() => handleSelect(node)}
-              className="w-full text-left px-3 py-2 text-sm text-slate-200 hover:bg-slate-700/50 transition-colors truncate"
+              className="w-full text-left px-3 py-2 text-sm text-text hover:bg-bg transition-colors truncate"
             >
               {node.title}
-              <span className="ml-2 text-xs text-slate-500 font-mono">
+              <span className="ml-2 text-[10px] text-text-dim font-mono">
                 {node.id}
               </span>
             </button>
@@ -86,7 +86,7 @@ export default function GraphSearch({ nodes, onNodeSelect }: GraphSearchProps) {
 
       {/* 无匹配结果 */}
       {isOpen && query.trim() && filtered.length === 0 && (
-        <div className="absolute z-40 mt-1 w-full bg-slate-800 border border-slate-700/50 rounded-lg shadow-xl px-3 py-2 text-sm text-slate-500">
+        <div className="absolute z-40 mt-1 w-full bg-elevated border border-border rounded-md shadow-xl px-3 py-2 text-sm text-text-dim">
           未找到匹配的节点
         </div>
       )}

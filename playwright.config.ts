@@ -27,5 +27,14 @@ export default defineConfig({
         browserName: 'chromium',
       },
     },
+    // 截图测试
+    {
+      name: 'screenshots',
+      testMatch: /.*screenshots\.spec\.ts/,
+      use: {
+        baseURL: 'http://localhost:3000',
+        browserName: 'chromium',
+      },
+    },
   ],
 });

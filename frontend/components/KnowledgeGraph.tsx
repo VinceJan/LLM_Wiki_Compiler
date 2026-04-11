@@ -31,17 +31,17 @@ interface KnowledgeGraphProps {
   onNodeClick: (node: GraphNode) => void;
 }
 
-// 节点颜色映射
+// 节点颜色映射 — 与新配色协调的柔和色调
 const NODE_COLORS: Record<string, string> = {
-  concept: '#3b82f6',   // 蓝色 - 概念页
-  entity: '#22c55e',    // 绿色 - 实体页
-  source: '#f59e0b',    // 橙色 - 来源页
-  query: '#a855f7',     // 紫色 - 查询页
-  other: '#6b7280',     // 灰色 - 其他
+  concept: '#c9a87c',   // 琥珀 - 概念页
+  entity: '#7da87b',    // 鼠尾草绿 - 实体页
+  source: '#c9a84c',    // 暖黄 - 来源页
+  query: '#a08ab5',     // 柔和紫 - 查询页
+  other: '#666666',     // 中灰 - 其他
 };
 
-// 连线颜色（两端节点类型的混合色，统一用低饱和色）
-const LINK_COLOR = '#374151';
+// 连线颜色
+const LINK_COLOR = '#2a2a2a';
 
 export default function KnowledgeGraph({ data, onNodeClick }: KnowledgeGraphProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -63,7 +63,7 @@ export default function KnowledgeGraph({ data, onNodeClick }: KnowledgeGraphProp
         .onNodeClick((node: GraphNode) => onNodeClick(node))
         .d3AlphaDecay(0.02)
         .d3VelocityDecay(0.3)
-        .backgroundColor('#0f172a'); // 与深色主题匹配
+        .backgroundColor('#111111'); // 与 bg 色匹配
     }
 
     // 每次 data 变化时更新图谱数据（保留节点物理位置）
@@ -77,7 +77,7 @@ export default function KnowledgeGraph({ data, onNodeClick }: KnowledgeGraphProp
   return (
     <div
       ref={containerRef}
-      className="w-full h-full min-h-[400px] rounded-xl border border-slate-700/50 bg-slate-900/50"
+      className="w-full h-full min-h-[400px]"
     />
   );
 }

@@ -23,34 +23,34 @@ function simpleMarkdownToHtml(md: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  // [[wikilink]] 高亮
+  // [[wikilink]] 高亮 — 用主色调
   html = html.replace(
     /\[\[([^\]]+)\]\]/g,
-    '<mark class="px-1 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">$1</mark>'
+    '<mark class="px-1 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">$1</mark>'
   );
 
   // # 标题
-  html = html.replace(/^### (.+)$/gm, '<h3 class="text-base font-semibold text-white mt-3 mb-1">$1</h3>');
-  html = html.replace(/^## (.+)$/gm, '<h2 class="text-lg font-semibold text-white mt-4 mb-2">$1</h2>');
-  html = html.replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold text-white mt-4 mb-2">$1</h1>');
+  html = html.replace(/^### (.+)$/gm, '<h3 class="text-base font-semibold text-text mt-3 mb-1">$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2 class="text-lg font-semibold text-text mt-4 mb-2">$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold text-text mt-4 mb-2">$1</h1>');
 
   // **加粗**
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="text-text font-semibold">$1</strong>');
 
   // *斜体*（不与加粗冲突）
-  html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em class="italic text-slate-300">$1</em>');
+  html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em class="italic text-text-muted">$1</em>');
 
   // `行内代码`
   html = html.replace(
     /`([^`]+)`/g,
-    '<code class="px-1 py-0.5 rounded bg-slate-700/60 text-emerald-300 text-sm font-mono">$1</code>'
+    '<code class="px-1 py-0.5 rounded bg-elevated text-success text-sm font-mono">$1</code>'
   );
 
   // 无序列表
-  html = html.replace(/^[\-\*] (.+)$/gm, '<li class="ml-4 list-disc text-slate-300">$1</li>');
+  html = html.replace(/^[\-\*] (.+)$/gm, '<li class="ml-4 list-disc text-text-muted">$1</li>');
 
   // 空行分段
-  html = html.replace(/\n{2,}/g, '</p><p class="mb-2 text-slate-300 leading-relaxed">');
+  html = html.replace(/\n{2,}/g, '</p><p class="mb-2 text-text-muted leading-relaxed">');
 
   // 单行换行
   html = html.replace(/\n/g, '<br />');
