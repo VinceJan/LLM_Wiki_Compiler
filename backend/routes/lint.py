@@ -23,7 +23,7 @@ async def lint():
     返回检测报告文本。
     """
     try:
-        report = _engine.run_lint()
+        report = await _engine.run_lint()
         return LintResponse(report=report)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lint 失败: {str(e)}")

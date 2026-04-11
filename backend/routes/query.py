@@ -28,7 +28,7 @@ async def query(request: QueryRequest):
         raise HTTPException(status_code=400, detail="问题不能为空")
 
     try:
-        answer = _engine.run_query(request.question)
+        answer = await _engine.run_query(request.question)
         return QueryResponse(answer=answer)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"查询失败: {str(e)}")

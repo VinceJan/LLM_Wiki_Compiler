@@ -242,7 +242,7 @@ source: 原始来源URL或文件
         except Exception as e:
             yield {"event": "error", "data": {"error": str(e)}}
 
-    def run_query(self, question: str, wiki_root: str = None) -> str:
+    async def run_query(self, question: str, wiki_root: str = None) -> str:
         """调用 Claude Code CLI 回答基于 wiki 的问题。
 
         Args:
@@ -268,20 +268,18 @@ source: 原始来源URL或文件
         env["CLAUDE_CODE_GIT_BASH_PATH"] = CLAUDE_CODE_GIT_BASH_PATH
 
         try:
-            result = asyncio.run(
-                asyncio.create_subprocess_exec(
-                    "claude",
-                    "--print",
-                    "--permission-mode", "bypassPermissions",
-                    prompt,
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE,
-                    cwd=str(root),
-                    env=env,
-                )
+            result = await asyncio.create_subprocess_exec(
+                "claude",
+                "--print",
+                "--permission-mode", "bypassPermissions",
+                prompt,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=str(root),
+                env=env,
             )
 
-            stdout_data, stderr_data = asyncio.run(_read_process_output(result))
+            stdout_data, stderr_data = await _read_process_output(result)
             if result.returncode != 0:
                 return f"查询出错: {stderr_data.decode('utf-8', errors='replace')}"
 
@@ -292,7 +290,7 @@ source: 原始来源URL或文件
         except Exception as e:
             return f"查询异常: {str(e)}"
 
-    def run_lint(self, wiki_root: str = None) -> str:
+    async def run_lint(self, wiki_root: str = None) -> str:
         """调用 Claude Code CLI 执行 wiki 健康检查。
 
         Args:
@@ -322,20 +320,18 @@ source: 原始来源URL或文件
         env["CLAUDE_CODE_GIT_BASH_PATH"] = CLAUDE_CODE_GIT_BASH_PATH
 
         try:
-            result = asyncio.run(
-                asyncio.create_subprocess_exec(
-                    "claude",
-                    "--print",
-                    "--permission-mode", "bypassPermissions",
-                    prompt,
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE,
-                    cwd=str(root),
-                    env=env,
-                )
+            result = await asyncio.create_subprocess_exec(
+                "claude",
+                "--print",
+                "--permission-mode", "bypassPermissions",
+                prompt,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=str(root),
+                env=env,
             )
 
-            stdout_data, stderr_data = asyncio.run(_read_process_output(result))
+            stdout_data, stderr_data = await _read_process_output(result)
             if result.returncode != 0:
                 return f"Lint 出错: {stderr_data.decode('utf-8', errors='replace')}"
 
