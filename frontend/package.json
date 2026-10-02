@@ -11,7 +11,7 @@
     "class-variance-authority": "^0.7",
     "clsx": "^2",
     "force-graph": "^1",
-    "next": "^15",
+    "next": "^16",
     "react": "^19",
     "react-dom": "^19"
   },
